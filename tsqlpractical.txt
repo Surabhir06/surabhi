@@ -1,0 +1,136 @@
+(--Surabhi.R
+21038
+practical assessment questions--)
+/*question 1*/
+
+CREATE FUNCTION udfProductInYear (
+    @model_year varchar(30)
+)
+RETURNS TABLE
+AS
+RETURN
+    SELECT 
+        order_id,
+        customer_id,
+        store_id,
+		staff_id,
+		order_date,
+		order_status
+    FROM
+        sales.orders
+    WHERE
+        order_date = @model_year;
+SELECT * from
+ udfProductInYear(2018);
+
+ ALTER FUNCTION udfProductInYear (
+    @start_date varchar(30),
+    @end_date varchar(30)
+)
+RETURNS TABLE
+AS
+RETURN
+    SELECT 
+       order_id,
+        customer_id,
+        store_id,
+		staff_id,
+		order_date,
+		order_status
+    FROM
+        sales.orders
+    WHERE
+        order_date BETWEEN @start_date AND @end_date
+
+SELECT * from
+       udfProductInYear(2017,2018)
+
+
+/*question2*/
+create table sales.customer_audittts
+( 
+change_id INT IDENTITY PRIMARY KEY,
+    customer_id INT NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+	last_name VARCHAR(255) NOT NULL,
+    phone varchar(20)  NOT NULL,
+	
+	street varchar(20)  NULL,
+	city varchar(20)  NULL,
+	state_name varchar(20)  NULL,
+	zip_code varchar(20)  NULL,
+	updated_at DATETIME NOT NULL,
+    operation CHAR(3) NOT NULL,
+   
+	)
+
+create TRIGGER sales_customers_Deletted
+ON sales.customers
+AFTER  DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO sales.customer_audit(
+       customer_id,
+         first_name,
+         last_name,
+        phone,
+	
+        street, 
+		city,
+		zip_code,
+        updated_at, 
+        operation
+    )
+   
+    SELECT
+       d.customer_id,
+         first_name,
+         last_name,
+        phone,
+       
+        street, 
+		city,
+		
+		zip_code,
+        GETDATE(),
+        'DEL'
+    FROM
+        deleted d ;
+END
+
+select * from sales.customers
+
+delete from sales.customers
+where customer_id=3;
+
+SELECT 
+    * 
+FROM 
+    sales.customer_audit;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
